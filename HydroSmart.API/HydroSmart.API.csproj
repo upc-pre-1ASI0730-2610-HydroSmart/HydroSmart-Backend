@@ -42,7 +42,6 @@
     <ItemGroup>
       <Folder Include="Analytics\" />
       <Folder Include="Devices\" />
-      <Folder Include="Notifications\" />
       <Folder Include="Reports\" />
     </ItemGroup>
 
