@@ -9,6 +9,13 @@ using HydroSmart.API.Profiles.Application.Internal.QueryServices;
 using HydroSmart.API.Profiles.Application.Internal.CommandServices;
 using HydroSmart.API.Profiles.Interfaces.ACL;
 using HydroSmart.API.Profiles.Application.ACL;
+using HydroSmart.API.Notifications.Domain.Repositories;
+using HydroSmart.API.Notifications.Domain.Services;
+using HydroSmart.API.Notifications.Infrastructure.Persistence.EFC.Repositories;
+using HydroSmart.API.Notifications.Application.Internal.QueryServices;
+using HydroSmart.API.Notifications.Application.Internal.CommandServices;
+using HydroSmart.API.Notifications.Interfaces.ACL;
+using HydroSmart.API.Notifications.Application.ACL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using DotNetEnv;
@@ -193,6 +200,12 @@ builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IProfileQueryService, ProfileQueryService>();
 builder.Services.AddScoped<IProfileCommandService, ProfileCommandService>();
 builder.Services.AddScoped<IProfilesContextFacade, ProfilesContextFacade>();
+
+// Notifications Bounded Context
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationQueryService, NotificationQueryService>();
+builder.Services.AddScoped<INotificationCommandService, NotificationCommandService>();
+builder.Services.AddScoped<INotificationsContextFacade, NotificationsContextFacade>();
 
 // ========================
 
