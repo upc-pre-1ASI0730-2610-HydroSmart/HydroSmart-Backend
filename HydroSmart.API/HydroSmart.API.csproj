@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>HydroSmart_Backend</RootNamespace>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="DotNetEnv" Version="3.1.1" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
+        <PackageReference Include="Stripe.net" Version="50.0.0" />
+    </ItemGroup>
+    <ItemGroup>
+        <!-- Dependency Injection related packages -->
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
+        <!-- EntityFrameworkCore Database Persistence related packages -->
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.5" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational.Design" Version="1.1.6" />
+        <!-- MySQL Database Persistence related packages -->
+        <PackageReference Include="MySql.EntityFrameworkCore" Version="9.0.3" />
+        <!-- Audit Trails related packages -->
+        <PackageReference Include="EntityFrameworkCore.CreatedUpdatedDate" Version="8.0.0" />
+        <!-- Naming convention conversion related packages -->
+        <PackageReference Include="Humanizer" Version="2.14.1" />
+        <!-- OpenAPI documentation related packages -->
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.2" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="8.1.2" />
+        <!-- BCrypt Encription related packages -->
+        <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+        <!-- JSON Web Token related packages -->
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.11.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.5" />
+        <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.11.0" />
+        <!-- Mediator pattern related packages -->
+        <PackageReference Include="Cortex.Mediator" Version="1.6.1" />
+    </ItemGroup>
+    <ItemGroup>
+        <Folder Include="Notifications\" />
+        <Folder Include="Profiles\Application\Internal\" />
+        <Folder Include="Profiles\Domain\Model\" />
+        <Folder Include="Profiles\Domain\Repositories\" />
+        <Folder Include="Profiles\Domain\Services\" />
+        <Folder Include="Profiles\Infrastructure\Persistence\EFC\Configuration\Extensions\" />
+        <Folder Include="Profiles\Infrastructure\Persistence\EFC\Repositories\" />
+        <Folder Include="Profiles\Interfaces\ACL\" />
+        <Folder Include="Profiles\Interfaces\REST\Resources\" />
+        <Folder Include="Profiles\Interfaces\REST\Transform\" />
+    </ItemGroup>
+
+</Project>
