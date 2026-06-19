@@ -16,6 +16,11 @@ using HydroSmart.API.Notifications.Application.Internal.QueryServices;
 using HydroSmart.API.Notifications.Application.Internal.CommandServices;
 using HydroSmart.API.Notifications.Interfaces.ACL;
 using HydroSmart.API.Notifications.Application.ACL;
+using HydroSmart.API.Devices.Application.Internal.CommandServices;
+using HydroSmart.API.Devices.Application.Internal.QueryServices;
+using HydroSmart.API.Devices.Domain.Repositories;
+using HydroSmart.API.Devices.Domain.Services;
+using HydroSmart.API.Devices.Infrastructure.Persistence.EFC.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using DotNetEnv;
@@ -206,6 +211,11 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationQueryService, NotificationQueryService>();
 builder.Services.AddScoped<INotificationCommandService, NotificationCommandService>();
 builder.Services.AddScoped<INotificationsContextFacade, NotificationsContextFacade>();
+
+// Devices Bounded Context
+builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
+builder.Services.AddScoped<IDeviceQueryService, DeviceQueryService>();
+builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
 
 // ========================
 
