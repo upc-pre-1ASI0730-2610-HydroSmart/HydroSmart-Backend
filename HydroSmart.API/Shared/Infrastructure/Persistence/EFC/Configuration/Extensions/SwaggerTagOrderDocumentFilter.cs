@@ -14,9 +14,9 @@ public class SwaggerTagOrderDocumentFilter : IDocumentFilter
 
         var order = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
         {
-            ["Analytics"] = 1,
-            ["Devices"] = 2,
-            ["Profiles"] = 3,
+            ["Devices"] = 1,
+            ["Profiles"] = 2,
+            ["Analytics"] = 3,
             ["Notifications"] = 4,
             ["Settings"] = 5
         };
