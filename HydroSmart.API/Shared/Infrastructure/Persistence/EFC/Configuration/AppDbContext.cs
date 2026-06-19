@@ -4,6 +4,7 @@ using HydroSmart.API.Shared.Infrastructure.Persistence.EFC.Configuration.Extensi
 using Microsoft.EntityFrameworkCore;
 
 namespace HydroSmart.API.Shared.Infrastructure.Persistence.EFC.Configuration;
+using HydroSmart.API.Devices.Infrastructure.Persistence.EFC.Configuration.Extensions;
 
 public class AppDbContext(DbContextOptions options) : DbContext(options)
 {
@@ -29,7 +30,7 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
         //add more
         
         // Devices Context
-        //builder.ApplyDevicesConfiguration();
+        builder.ApplyDevicesConfiguration();
         
         // Subscriptions Context
         //builder.ApplySubscriptionsConfiguration();
