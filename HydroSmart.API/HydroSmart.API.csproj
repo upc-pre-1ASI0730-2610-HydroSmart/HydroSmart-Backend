@@ -15,7 +15,6 @@
     </ItemGroup>
     <ItemGroup>
         <!-- Dependency Injection related packages -->
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
         <!-- EntityFrameworkCore Database Persistence related packages -->
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.5" />

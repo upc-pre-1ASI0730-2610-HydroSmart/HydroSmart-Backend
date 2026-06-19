@@ -14,19 +14,19 @@ public class DashboardResource
 
 public class TimeBlockResource
 {
-    public string TimeBlock { get; set; }
+    public string TimeBlock { get; set; } = string.Empty;
     public double Liters { get; set; }
 }
 
 public class CategoryBreakdownResource
 {
-    public string Category { get; set; }
+    public string Category { get; set; } = string.Empty;
     public double Liters { get; set; }
 }
 
 public class MonthlyComparisonResource
 {
-    public string Month { get; set; }
+    public string Month { get; set; } = string.Empty;
     public double Liters { get; set; }
 }
 
@@ -35,7 +35,7 @@ public class WaterConsumptionRecordResource
     public int Id { get; set; }
     public int UserId { get; set; }
     public double Liters { get; set; }
-    public string Category { get; set; }
+    public string Category { get; set; } = string.Empty;
     public DateTime RecordedAt { get; set; }
 }
 
@@ -43,6 +43,6 @@ public class CreateWaterConsumptionRecordRequest
 {
     public int UserId { get; set; }
     public double Liters { get; set; }
-    public string Category { get; set; } // Shower | Toilet | Filter | Sink | Other
+    public string Category { get; set; } = string.Empty; // Shower | Toilet | Filter | Sink | Other
     public DateTime? RecordedAt { get; set; }
 }

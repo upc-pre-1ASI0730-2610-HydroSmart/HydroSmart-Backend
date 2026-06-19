@@ -9,6 +9,8 @@ using HydroSmart.API.Devices.Infrastructure.Persistence.EFC.Configuration.Extens
 using HydroSmart.API.Devices.Domain.Model.Aggregates;
 using HydroSmart.API.IAM.Infrastructure.Persistence.EFC.Configuration.Extensions;
 using HydroSmart.API.IAM.Domain.Model.Aggregates;
+using HydroSmart.API.Reports.Infrastructure.Persistence.EFC.Configuration.Extensions;
+using HydroSmart.API.Reports.Domain.Model.Aggregates;
 using HydroSmart.API.Shared.Infrastructure.Persistence.EFC.Configuration.Extensions;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,6 +32,9 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
     
     // Analytics Bounded Context
     public DbSet<WaterConsumptionRecord> WaterConsumptionRecords { get; set; }
+    
+    // Reports Bounded Context
+    public DbSet<Report> Reports { get; set; }
     
     protected override void OnConfiguring(DbContextOptionsBuilder builder)
     {
@@ -60,6 +65,9 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
         
         // Notifications Context
         builder.ApplyNotificationsConfiguration();
+        
+        // Reports Context
+        builder.ApplyReportsConfiguration();
         
         // Subscriptions Context
         //builder.ApplySubscriptionsConfiguration();

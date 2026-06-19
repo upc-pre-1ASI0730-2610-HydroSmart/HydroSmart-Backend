@@ -17,8 +17,7 @@ namespace HydroSmart.API.Profiles.Interfaces.REST;
 [SwaggerTag("Available Profile Endpoints.")]
 public class ProfilesController(
     IProfileCommandService profileCommandService,
-    IProfileQueryService profileQueryService,
-    IProfilesContextFacade profilesContextFacade) : ControllerBase
+    IProfileQueryService profileQueryService) : ControllerBase
 {
     [HttpPost]
     [SwaggerOperation("Create Profile", "Create a new profile.", OperationId = "CreateProfile")]
