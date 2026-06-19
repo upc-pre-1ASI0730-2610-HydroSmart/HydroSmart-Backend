@@ -5,7 +5,7 @@ public class WaterConsumptionRecord
     public int Id { get; set; }
     public int UserId { get; set; }
     public double Liters { get; set; }
-    public string Category { get; set; } = string.Empty;
+    public string Category { get; set; }
     public DateTime RecordedAt { get; set; }
 
     public WaterConsumptionRecord()
