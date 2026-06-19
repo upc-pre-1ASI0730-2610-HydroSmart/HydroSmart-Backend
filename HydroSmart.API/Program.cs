@@ -16,6 +16,13 @@ using HydroSmart.API.Notifications.Application.Internal.QueryServices;
 using HydroSmart.API.Notifications.Application.Internal.CommandServices;
 using HydroSmart.API.Notifications.Interfaces.ACL;
 using HydroSmart.API.Notifications.Application.ACL;
+using HydroSmart.API.Analytics.Domain.Repositories;
+using HydroSmart.API.Analytics.Domain.Services;
+using HydroSmart.API.Analytics.Infrastructure.Persistence.EFC.Repositories;
+using HydroSmart.API.Analytics.Application.Internal.QueryServices;
+using HydroSmart.API.Analytics.Application.Internal.CommandServices;
+using HydroSmart.API.Analytics.Interfaces.ACL;
+using HydroSmart.API.Analytics.Application.ACL;
 using HydroSmart.API.Devices.Application.Internal.CommandServices;
 using HydroSmart.API.Devices.Application.Internal.QueryServices;
 using HydroSmart.API.Devices.Domain.Repositories;
@@ -211,6 +218,12 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationQueryService, NotificationQueryService>();
 builder.Services.AddScoped<INotificationCommandService, NotificationCommandService>();
 builder.Services.AddScoped<INotificationsContextFacade, NotificationsContextFacade>();
+
+// Analytics Bounded Context
+builder.Services.AddScoped<IWaterConsumptionRecordRepository, WaterConsumptionRecordRepository>();
+builder.Services.AddScoped<IWaterConsumptionRecordQueryService, WaterConsumptionRecordQueryService>();
+builder.Services.AddScoped<IWaterConsumptionRecordCommandService, WaterConsumptionRecordCommandService>();
+builder.Services.AddScoped<IAnalyticsContextFacade, AnalyticsContextFacade>();
 
 // Devices Bounded Context
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
