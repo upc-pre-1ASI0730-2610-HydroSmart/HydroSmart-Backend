@@ -28,9 +28,13 @@ using HydroSmart.API.Devices.Application.Internal.QueryServices;
 using HydroSmart.API.Devices.Domain.Repositories;
 using HydroSmart.API.Devices.Domain.Services;
 using HydroSmart.API.Devices.Infrastructure.Persistence.EFC.Repositories;
+using HydroSmart.API.IAM.Infrastructure.Pipeline.Middleware.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using DotNetEnv;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 // Load environment variables from .env file
 var envFile = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production"
@@ -48,6 +52,35 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddControllers(options => options.Conventions.Add(new KebabCaseRouteNamingConvention()));
+
+// Configure TokenSettings
+builder.Services.Configure<HydroSmart.API.IAM.Infrastructure.Tokens.JWT.Configuration.TokenSettings>(
+    builder.Configuration.GetSection("TokenSettings"));
+
+// Configure JWT Authentication
+var tokenSecretFromConfig = builder.Configuration["TokenSettings:Secret"]; 
+if (!string.IsNullOrEmpty(tokenSecretFromConfig))
+{
+    var keyBytes = Encoding.ASCII.GetBytes(tokenSecretFromConfig);
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = true;
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+}
 
 // Configure Database Connection based on Environment
 if (builder.Environment.IsDevelopment())
@@ -150,6 +183,67 @@ builder.Services.AddCors(options =>
         }
     });
 });
+// Configure Database Connection based on Environment
+if (builder.Environment.IsDevelopment())
+    builder.Services.AddDbContext<AppDbContext>(options =>
+    {
+        var connectionStringTemplate = builder.Configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrEmpty(connectionStringTemplate))
+            throw new Exception("Database connection string template is not set in the configuration.");
+        var connectionString = Environment.ExpandEnvironmentVariables(connectionStringTemplate);
+        if (string.IsNullOrEmpty(connectionString))
+            throw new Exception("Database connection string is not set in the configuration.");
+        options.UseMySQL(connectionString)
+            .LogTo(Console.WriteLine, LogLevel.Information)
+            .EnableSensitiveDataLogging()
+            .EnableDetailedErrors();
+    });
+else if (builder.Environment.IsProduction())
+    builder.Services.AddDbContext<AppDbContext>(options =>
+    {
+        // First, try to use CONNECTION_STRING directly if available
+        var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+        
+        // If not available, build from individual environment variables or configuration
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables()
+                .Build();
+            
+            var connectionStringTemplate = configuration.GetConnectionString("DefaultConnection");
+            
+            if (!string.IsNullOrEmpty(connectionStringTemplate))
+            {
+                connectionString = Environment.ExpandEnvironmentVariables(connectionStringTemplate);
+            }
+            else
+            {
+                // Build connection string from individual environment variables
+                var host = Environment.GetEnvironmentVariable("DB_HOST");
+                var port = Environment.GetEnvironmentVariable("DB_PORT");
+                var user = Environment.GetEnvironmentVariable("DB_USER");
+                var password = Environment.GetEnvironmentVariable("DB_PASSWORD");
+                var database = Environment.GetEnvironmentVariable("DB_NAME");
+                
+                if (!string.IsNullOrEmpty(host) && !string.IsNullOrEmpty(port) && 
+                    !string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(database))
+                {
+                    connectionString = $"server={host};port={port};user={user};password={password};database={database}";
+                }
+            }
+        }
+        
+        if (string.IsNullOrEmpty(connectionString))
+            throw new Exception("Database connection string is not set. Please configure CONNECTION_STRING or individual DB_* environment variables.");
+        
+        Console.WriteLine($"Using connection string: server={connectionString.Split(';')[0].Split('=')[1]};port={connectionString.Split(';')[1].Split('=')[1]};database={connectionString.Split(';')[4].Split('=')[1]}");
+        
+        options.UseMySQL(connectionString)
+            .LogTo(Console.WriteLine, LogLevel.Error)
+            .EnableDetailedErrors();
+    });
 
 // Swagger Configuration
 builder.Services.AddEndpointsApiExplorer();
@@ -230,7 +324,12 @@ builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IDeviceQueryService, DeviceQueryService>();
 builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
 
-// ========================
+// IAM Bounded Context
+builder.Services.AddScoped<HydroSmart.API.IAM.Domain.Repositories.IUserRepository, HydroSmart.API.IAM.Infrastructure.Persistence.EFC.Repositories.UserRepository>();
+builder.Services.AddScoped<HydroSmart.API.IAM.Domain.Services.IUserQueryService, HydroSmart.API.IAM.Application.Internal.QueryServices.UserQueryService>();
+builder.Services.AddScoped<HydroSmart.API.IAM.Domain.Services.IUserCommandService, HydroSmart.API.IAM.Application.Internal.CommandServices.UserCommandService>();
+builder.Services.AddScoped<HydroSmart.API.IAM.Application.Internal.OutboundServices.ITokenService, HydroSmart.API.IAM.Infrastructure.Tokens.JWT.Services.TokenService>();
+builder.Services.AddScoped<HydroSmart.API.IAM.Application.Internal.OutboundServices.IHashingService, HydroSmart.API.IAM.Infrastructure.Hashing.BCrypt.Services.HashingService>();
 
 var app = builder.Build();
 
@@ -255,8 +354,14 @@ app.UseCors("DefaultCorsPolicy");
 
 app.UseHttpsRedirection();
 
+// Enable authentication and authorization
+app.UseAuthentication();
 app.UseAuthorization();
+
+// Add Request Authorization Middleware for Token Validation
+app.UseMiddleware<RequestAuthorizationMiddleware>();
 
 app.MapControllers();
 
 app.Run();
+
