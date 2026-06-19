@@ -1,5 +1,7 @@
+using System;
 using HydroSmart.API.Settings.Domain.Model.Aggregates;
 using HydroSmart.API.Settings.Interfaces.REST.Resources;
+using HydroSmart.API.Settings.Domain.Model.ValueObjects;
 
 namespace HydroSmart.API.Settings.Interfaces.REST.Transform;
 
@@ -7,6 +9,11 @@ public static class SettingsResourceFromEntityAssembler
 {
     public static SettingsResource ToResourceFromEntity(UserSettings settings)
     {
+        var start = DateTime.Today.Add(settings.NotificationScheduleStart).ToString("hh:mm tt");
+        var end = DateTime.Today.Add(settings.NotificationScheduleEnd).ToString("hh:mm tt");
+        var freq = ReportFrequencyToString(settings.ReportFrequency);
+        var format = ReportFormatToString(settings.ReportFormat);
+
         return new SettingsResource(
             settings.Id,
             settings.UserId,
@@ -16,10 +23,23 @@ public static class SettingsResourceFromEntityAssembler
             settings.ReduceWaterIntensityDuringOverconsumption,
             settings.HighConsumptionAlertsEnabled,
             settings.DailyWeeklySummaryEnabled,
-            settings.NotificationScheduleStart,
-            settings.NotificationScheduleEnd,
-            settings.ReportFrequency,
-            settings.ReportFormat,
+            start,
+            end,
+            freq,
+            format,
             settings.TwoFactorAuthenticationEnabled);
     }
+
+    private static string ReportFrequencyToString(ReportFrequency freq) => freq switch
+    {
+        ReportFrequency.Daily => "Diario",
+        ReportFrequency.Weekly => "Semanal",
+        _ => "Mensual",
+    };
+
+    private static string ReportFormatToString(ReportFormat format) => format switch
+    {
+        ReportFormat.CSV => "CSV",
+        _ => "PDF",
+    };
 }
