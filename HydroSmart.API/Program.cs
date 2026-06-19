@@ -23,6 +23,11 @@ using HydroSmart.API.Analytics.Application.Internal.QueryServices;
 using HydroSmart.API.Analytics.Application.Internal.CommandServices;
 using HydroSmart.API.Analytics.Interfaces.ACL;
 using HydroSmart.API.Analytics.Application.ACL;
+using HydroSmart.API.Devices.Application.Internal.CommandServices;
+using HydroSmart.API.Devices.Application.Internal.QueryServices;
+using HydroSmart.API.Devices.Domain.Repositories;
+using HydroSmart.API.Devices.Domain.Services;
+using HydroSmart.API.Devices.Infrastructure.Persistence.EFC.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using DotNetEnv;
@@ -219,6 +224,11 @@ builder.Services.AddScoped<IWaterConsumptionRecordRepository, WaterConsumptionRe
 builder.Services.AddScoped<IWaterConsumptionRecordQueryService, WaterConsumptionRecordQueryService>();
 builder.Services.AddScoped<IWaterConsumptionRecordCommandService, WaterConsumptionRecordCommandService>();
 builder.Services.AddScoped<IAnalyticsContextFacade, AnalyticsContextFacade>();
+
+// Devices Bounded Context
+builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
+builder.Services.AddScoped<IDeviceQueryService, DeviceQueryService>();
+builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
 
 // ========================
 
