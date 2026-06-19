@@ -1,6 +1,7 @@
 ﻿using EntityFrameworkCore.CreatedUpdatedDate.Extensions;
 using HydroSmart.API.Analytics.Infrastructure.Persistence.EFC.Configuration.Extensions;
 using HydroSmart.API.Profiles.Infrastructure.Persistence.EFC.Configuration.Extensions;
+using HydroSmart.API.Settings.Infrastructure.Persistence.EFC.Configuration.Extensions;
 using HydroSmart.API.Shared.Infrastructure.Persistence.EFC.Configuration.Extensions;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +26,9 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
         
         // Profiles Context
         builder.ApplyProfilesConfiguration();
+
+        // Settings Context
+        builder.ApplySettingsConfiguration();
 
         // Analytics Context
         builder.ApplyAnalyticsConfiguration();
