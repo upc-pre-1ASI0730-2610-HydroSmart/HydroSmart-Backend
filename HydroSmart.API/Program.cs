@@ -29,6 +29,11 @@ using HydroSmart.API.Devices.Domain.Repositories;
 using HydroSmart.API.Devices.Domain.Services;
 using HydroSmart.API.Devices.Infrastructure.Persistence.EFC.Repositories;
 using HydroSmart.API.Reports.Infrastructure.Persistence.EFC.Configuration.Extensions;
+using HydroSmart.API.Settings.Application.Internal.CommandServices;
+using HydroSmart.API.Settings.Application.Internal.QueryServices;
+using HydroSmart.API.Settings.Domain.Repositories;
+using HydroSmart.API.Settings.Domain.Services;
+using HydroSmart.API.Settings.Infrastructure.Persistence.EFC.Repositories;
 using HydroSmart.API.IAM.Infrastructure.Pipeline.Middleware.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -251,6 +256,21 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.EnableAnnotations();
+    options.OrderActionsBy(apiDesc =>
+    {
+        var controller = apiDesc.ActionDescriptor.RouteValues["controller"];
+        return controller switch
+        {
+            "Devices" => "1-Devices",
+            "Profiles" => "2-Profiles",
+            "Analytics" => "3-Analytics",
+            "Notifications" => "4-Notifications",
+            "Settings" => "5-Settings",
+            "Reports" => "6-Reports",
+            _ => "9-Other"
+        };
+    });
+    options.DocumentFilter<HydroSmart.API.Shared.Infrastructure.Persistence.EFC.Configuration.Extensions.SwaggerTagOrderDocumentFilter>();
     options.SwaggerDoc("v1",
         new OpenApiInfo
         {
@@ -319,11 +339,16 @@ builder.Services.AddScoped<IWaterConsumptionRecordRepository, WaterConsumptionRe
 builder.Services.AddScoped<IWaterConsumptionRecordQueryService, WaterConsumptionRecordQueryService>();
 builder.Services.AddScoped<IWaterConsumptionRecordCommandService, WaterConsumptionRecordCommandService>();
 builder.Services.AddScoped<IAnalyticsContextFacade, AnalyticsContextFacade>();
-
 // Devices Bounded Context
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IDeviceQueryService, DeviceQueryService>();
 builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
+builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
+
+// Settings Bounded Context
+builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
+builder.Services.AddScoped<ISettingsQueryService, SettingsQueryService>();
+builder.Services.AddScoped<ISettingsCommandService, SettingsCommandService>();
 
 // Reports Bounded Context
 builder.Services.AddScoped<HydroSmart.API.Reports.Domain.Repositories.IReportRepository, HydroSmart.API.Reports.Infrastructure.Persistence.EFC.Repositories.ReportRepository>();
@@ -336,6 +361,8 @@ builder.Services.AddScoped<HydroSmart.API.IAM.Domain.Services.IUserQueryService,
 builder.Services.AddScoped<HydroSmart.API.IAM.Domain.Services.IUserCommandService, HydroSmart.API.IAM.Application.Internal.CommandServices.UserCommandService>();
 builder.Services.AddScoped<HydroSmart.API.IAM.Application.Internal.OutboundServices.ITokenService, HydroSmart.API.IAM.Infrastructure.Tokens.JWT.Services.TokenService>();
 builder.Services.AddScoped<HydroSmart.API.IAM.Application.Internal.OutboundServices.IHashingService, HydroSmart.API.IAM.Infrastructure.Hashing.BCrypt.Services.HashingService>();
+
+// ========================
 
 var app = builder.Build();
 
