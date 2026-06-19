@@ -1,3 +1,6 @@
+using System;
+using HydroSmart.API.Settings.Domain.Model.ValueObjects;
+
 namespace HydroSmart.API.Settings.Domain.Model.Commands;
 
 public record UpdateSettingsCommand(
@@ -8,9 +11,9 @@ public record UpdateSettingsCommand(
     bool ReduceWaterIntensityDuringOverconsumption,
     bool HighConsumptionAlertsEnabled,
     bool DailyWeeklySummaryEnabled,
-    string NotificationScheduleStart,
-    string NotificationScheduleEnd,
-    string ReportFrequency,
-    string ReportFormat,
+    TimeSpan NotificationScheduleStart,
+    TimeSpan NotificationScheduleEnd,
+    ReportFrequency ReportFrequency,
+    ReportFormat ReportFormat,
     bool TwoFactorAuthenticationEnabled
 );
