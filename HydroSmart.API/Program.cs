@@ -337,27 +337,25 @@ builder.Services.AddScoped<IWaterConsumptionRecordRepository, WaterConsumptionRe
 builder.Services.AddScoped<IWaterConsumptionRecordQueryService, WaterConsumptionRecordQueryService>();
 builder.Services.AddScoped<IWaterConsumptionRecordCommandService, WaterConsumptionRecordCommandService>();
 builder.Services.AddScoped<IAnalyticsContextFacade, AnalyticsContextFacade>();
-
 // Devices Bounded Context
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IDeviceQueryService, DeviceQueryService>();
 builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
+builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
 
-<<<<<<< HEAD
+// Settings Bounded Context
+builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
+builder.Services.AddScoped<ISettingsQueryService, SettingsQueryService>();
+builder.Services.AddScoped<ISettingsCommandService, SettingsCommandService>();
+
 // IAM Bounded Context
 builder.Services.AddScoped<HydroSmart.API.IAM.Domain.Repositories.IUserRepository, HydroSmart.API.IAM.Infrastructure.Persistence.EFC.Repositories.UserRepository>();
 builder.Services.AddScoped<HydroSmart.API.IAM.Domain.Services.IUserQueryService, HydroSmart.API.IAM.Application.Internal.QueryServices.UserQueryService>();
 builder.Services.AddScoped<HydroSmart.API.IAM.Domain.Services.IUserCommandService, HydroSmart.API.IAM.Application.Internal.CommandServices.UserCommandService>();
 builder.Services.AddScoped<HydroSmart.API.IAM.Application.Internal.OutboundServices.ITokenService, HydroSmart.API.IAM.Infrastructure.Tokens.JWT.Services.TokenService>();
 builder.Services.AddScoped<HydroSmart.API.IAM.Application.Internal.OutboundServices.IHashingService, HydroSmart.API.IAM.Infrastructure.Hashing.BCrypt.Services.HashingService>();
-=======
-// Settings Bounded Context
-builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
-builder.Services.AddScoped<ISettingsQueryService, SettingsQueryService>();
-builder.Services.AddScoped<ISettingsCommandService, SettingsCommandService>();
 
 // ========================
->>>>>>> ce27fa6 (feat (settings): add settings backend part.)
 
 var app = builder.Build();
 
