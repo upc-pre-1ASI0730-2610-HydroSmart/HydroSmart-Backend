@@ -166,9 +166,9 @@ builder.Services.AddSwaggerGen(options =>
         var controller = apiDesc.ActionDescriptor.RouteValues["controller"];
         return controller switch
         {
-            "Analytics" => "1-Analytics",
-            "Devices" => "2-Devices",
-            "Profiles" => "3-Profiles",
+            "Devices" => "1-Devices",
+            "Profiles" => "2-Profiles",
+            "Analytics" => "3-Analytics",
             "Notifications" => "4-Notifications",
             "Settings" => "5-Settings",
             _ => "9-Other"
