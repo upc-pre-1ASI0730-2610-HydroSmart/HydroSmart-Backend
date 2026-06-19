@@ -28,7 +28,7 @@ public class SettingsController(
         var settings = await settingsCommandService.Handle(createSettingsCommand);
         if (settings is null)
         {
-            return BadRequest();
+            return Conflict();
         }
 
         var settingsResource = SettingsResourceFromEntityAssembler.ToResourceFromEntity(settings);
@@ -91,7 +91,7 @@ public class SettingsController(
         var settings = await settingsCommandService.Handle(updateSettingsCommand);
         if (settings is null)
         {
-            return BadRequest();
+            return NotFound();
         }
 
         var settingsResource = SettingsResourceFromEntityAssembler.ToResourceFromEntity(settings);
