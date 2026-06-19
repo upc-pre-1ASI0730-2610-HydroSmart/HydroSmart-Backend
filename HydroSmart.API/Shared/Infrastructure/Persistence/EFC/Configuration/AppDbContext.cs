@@ -7,6 +7,8 @@ using HydroSmart.API.Notifications.Infrastructure.Persistence.EFC.Configuration.
 using HydroSmart.API.Notifications.Domain.Model.Aggregates;
 using HydroSmart.API.Devices.Infrastructure.Persistence.EFC.Configuration.Extensions;
 using HydroSmart.API.Devices.Domain.Model.Aggregates;
+using HydroSmart.API.Settings.Infrastructure.Persistence.EFC.Configuration.Extensions;
+using HydroSmart.API.Settings.Domain.Model.Aggregates;
 using HydroSmart.API.IAM.Infrastructure.Persistence.EFC.Configuration.Extensions;
 using HydroSmart.API.IAM.Domain.Model.Aggregates;
 using HydroSmart.API.Shared.Infrastructure.Persistence.EFC.Configuration.Extensions;
@@ -31,6 +33,9 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
     // Analytics Bounded Context
     public DbSet<WaterConsumptionRecord> WaterConsumptionRecords { get; set; }
     
+    // Settings Bounded Context
+    public DbSet<UserSettings> UserSettings { get; set; }
+    
     protected override void OnConfiguring(DbContextOptionsBuilder builder)
     {
         // Add the created and updated interceptor
@@ -47,6 +52,9 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
         
         // Profiles Context
         builder.ApplyProfilesConfiguration();
+
+        // Settings Context
+        builder.ApplySettingsConfiguration();
 
         // Analytics Context
         builder.ApplyAnalyticsConfiguration();
