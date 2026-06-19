@@ -1,4 +1,4 @@
-namespace HydroSmart.API.Profiles.Domain.Model.Commands;
+namespace HydroSmart.API.Devices.Domain.Model.Commands;
 
 public record UpdateDeviceCommand(
     int Id,
