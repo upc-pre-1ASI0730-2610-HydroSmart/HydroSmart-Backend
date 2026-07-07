@@ -1,5 +1,6 @@
 using HydroSmart.API.IAM.Domain.Model.Aggregates;
 using Microsoft.EntityFrameworkCore;
+using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace HydroSmart.API.IAM.Infrastructure.Persistence.EFC.Configuration.Extensions;
 
@@ -21,5 +22,11 @@ public static class ModelBuilderExtensions
         
         // Set table name
         builder.Entity<User>().ToTable("users");
+        
+        // Seed admin user for testing
+        var adminPasswordHash = BCryptNet.HashPassword("admin123");
+        builder.Entity<User>().HasData(
+            new User("admin@gmail.com", adminPasswordHash, "Admin")
+        );
     }
 }

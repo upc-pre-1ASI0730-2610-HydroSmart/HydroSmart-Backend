@@ -180,12 +180,13 @@ builder.Services.AddCors(options =>
             // Production: only allow configured origins
             policy.WithOrigins(allowedOrigins)
                   .AllowAnyMethod()
-                  .AllowAnyHeader();
+                  .AllowAnyHeader()
+                  .AllowCredentials();
         }
         else
         {
-            // Fallback: allow any method/header
-            policy.AllowAnyMethod().AllowAnyHeader();
+            // Fallback: allow all (if no origins configured)
+            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
         }
     });
 });
