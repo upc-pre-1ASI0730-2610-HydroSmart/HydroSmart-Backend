@@ -31,12 +31,19 @@ public class AuthenticationController(IUserCommandService userCommandService) : 
     [SwaggerResponse(StatusCodes.Status200OK, "The user was authenticated", typeof(AuthenticatedUserResource))]
     public async Task<IActionResult> SignIn([FromBody] SignInResource signInResource)
     {
-        var signInCommand = SignInCommandFromResourceAssembler.ToCommandFromResource(signInResource);
-        var authenticatedUser = await userCommandService.Handle(signInCommand);
-        var resource =
-            AuthenticatedUserResourceFromEntityAssembler.ToResourceFromEntity(authenticatedUser.user,
-                authenticatedUser.token);
-        return Ok(resource);
+        try
+        {
+            var signInCommand = SignInCommandFromResourceAssembler.ToCommandFromResource(signInResource);
+            var authenticatedUser = await userCommandService.Handle(signInCommand);
+            var resource =
+                AuthenticatedUserResourceFromEntityAssembler.ToResourceFromEntity(authenticatedUser.user,
+                    authenticatedUser.token);
+            return Ok(resource);
+        }
+        catch (Exception)
+        {
+            return Unauthorized(new { message = "Correo o contrasena incorrectos." });
+        }
     }
 
     /**
@@ -55,8 +62,15 @@ public class AuthenticationController(IUserCommandService userCommandService) : 
     [SwaggerResponse(StatusCodes.Status201Created, "The user was created", typeof(string))]
     public async Task<IActionResult> SignUp([FromBody] SignUpResource signUpResource)
     {
-        var signUpCommand = SignUpCommandFromResourceAssembler.ToCommandFromResource(signUpResource);
-        await userCommandService.Handle(signUpCommand);
-        return Created(string.Empty, "User created successfully.");
+        try
+        {
+            var signUpCommand = SignUpCommandFromResourceAssembler.ToCommandFromResource(signUpResource);
+            await userCommandService.Handle(signUpCommand);
+            return Created(string.Empty, new { message = "User created successfully." });
+        }
+        catch (Exception exception)
+        {
+            return BadRequest(new { message = exception.Message });
+        }
     }
 }
