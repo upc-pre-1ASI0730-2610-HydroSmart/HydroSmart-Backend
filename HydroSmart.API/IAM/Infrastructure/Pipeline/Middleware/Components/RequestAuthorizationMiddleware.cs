@@ -7,100 +7,175 @@ namespace HydroSmart.API.IAM.Infrastructure.Pipeline.Middleware.Components;
 
 /// <summary>
 /// RequestAuthorizationMiddleware is a custom middleware.
-/// This middleware is used to authorize requests.
-/// It validates a token is included in the request header and that the token is valid.
-/// If the token is valid then it sets the user in HttpContext.Items["User"].
+/// It validates the Authorization Bearer token and sets the user in HttpContext.Items["User"].
 /// </summary>
 public class RequestAuthorizationMiddleware(RequestDelegate next)
 {
-    /// <summary>
-    /// InvokeAsync is called by the ASP.NET Core runtime.
-    /// It is used to authorize requests.
-    /// It validates a token is included in the request header and that the token is valid.
-    /// If the token is valid then it sets the user in HttpContext.Items["User"].
-    /// </summary>
     public async Task InvokeAsync(
         HttpContext context,
         IUserQueryService userQueryService,
         ITokenService tokenService)
     {
-        Console.WriteLine("Entering InvokeAsync");
+        var path = context.Request.Path.Value?.ToLower() ?? string.Empty;
 
-        // Safely obtain endpoint metadata (GetEndpoint may return null)
+        Console.WriteLine($"[AUTH MIDDLEWARE] Method: {context.Request.Method}");
+        Console.WriteLine($"[AUTH MIDDLEWARE] Path: {path}");
+
+        // 1. Allow CORS preflight requests
+        if (context.Request.Method == HttpMethods.Options)
+        {
+            Console.WriteLine("[AUTH MIDDLEWARE] OPTIONS request - skipping authorization");
+            context.Response.StatusCode = StatusCodes.Status204NoContent;
+            return;
+        }
+
+        // 2. Allow public endpoints manually
+        if (IsPublicPath(path))
+        {
+            Console.WriteLine("[AUTH MIDDLEWARE] Public path - skipping authorization");
+            await next(context);
+            return;
+        }
+
+        // 3. Allow endpoints decorated with custom [AllowAnonymous]
         var endpoint = context.GetEndpoint();
-        if (endpoint == null)
+
+        if (endpoint != null)
         {
-            Console.WriteLine("No endpoint metadata available - skipping authorization");
-            await next(context);
-            return;
+            var allowAnonymous = endpoint.Metadata.Any(metadata =>
+                metadata.GetType() == typeof(AllowAnonymousAttribute));
+
+            Console.WriteLine($"[AUTH MIDDLEWARE] AllowAnonymous attribute: {allowAnonymous}");
+
+            if (allowAnonymous)
+            {
+                Console.WriteLine("[AUTH MIDDLEWARE] AllowAnonymous endpoint - skipping authorization");
+                await next(context);
+                return;
+            }
         }
 
-        // skip authorization if endpoint is decorated with [AllowAnonymous] attribute
-        var allowAnonymous = endpoint.Metadata.Any(m => m.GetType() == typeof(AllowAnonymousAttribute));
-        Console.WriteLine($"Allow Anonymous is {allowAnonymous}");
-        if (allowAnonymous)
-        {
-            Console.WriteLine("Skipping authorization");
-            // [AllowAnonymous] attribute is set, so skip authorization
-            await next(context);
-            return;
-        }
-
-        Console.WriteLine("Entering authorization");
-
-        // get token from request header
+        // 4. Validate Authorization header
         if (!context.Request.Headers.TryGetValue("Authorization", out var authHeaderValues))
         {
-            Console.WriteLine("Authorization header missing");
+            Console.WriteLine("[AUTH MIDDLEWARE] Authorization header missing");
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            await context.Response.WriteAsync("Unauthorized");
+            context.Response.ContentType = "application/json";
+
+            await context.Response.WriteAsync("""
+            {
+              "message": "Unauthorized request. Authorization header is missing."
+            }
+            """);
+
             return;
         }
 
-        var token = authHeaderValues.FirstOrDefault()?.Split(' ').Last();
+        var authHeader = authHeaderValues.FirstOrDefault();
 
-        // if token is null then return 401
+        if (string.IsNullOrWhiteSpace(authHeader) ||
+            !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("[AUTH MIDDLEWARE] Invalid Authorization header format");
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            context.Response.ContentType = "application/json";
+
+            await context.Response.WriteAsync("""
+            {
+              "message": "Unauthorized request. Bearer token is required."
+            }
+            """);
+
+            return;
+        }
+
+        var token = authHeader["Bearer ".Length..].Trim();
+
         if (string.IsNullOrWhiteSpace(token))
         {
-            Console.WriteLine("Token is null or empty");
+            Console.WriteLine("[AUTH MIDDLEWARE] Token is empty");
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            await context.Response.WriteAsync("Unauthorized");
+            context.Response.ContentType = "application/json";
+
+            await context.Response.WriteAsync("""
+            {
+              "message": "Unauthorized request. Token is empty."
+            }
+            """);
+
             return;
         }
 
         try
         {
-            // validate token
+            // 5. Validate token
             var userId = await tokenService.ValidateToken(token);
 
-            // if token is invalid then return 401
             if (userId == null)
             {
-                Console.WriteLine("Token validation failed");
+                Console.WriteLine("[AUTH MIDDLEWARE] Token validation failed");
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                await context.Response.WriteAsync("Unauthorized");
+                context.Response.ContentType = "application/json";
+
+                await context.Response.WriteAsync("""
+                {
+                  "message": "Unauthorized request. Invalid token."
+                }
+                """);
+
                 return;
             }
 
-            // get user by id
+            // 6. Get user by id
             var getUserByIdQuery = new GetUserByIdQuery(userId.Value);
-
-            // set user in HttpContext.Items["User"]
             var user = await userQueryService.Handle(getUserByIdQuery);
-            Console.WriteLine("Successful authorization. Updating Context...");
-            context.Items["User"] = user;
-            Console.WriteLine("Continuing with Middleware Pipeline");
 
-            // call next middleware
+            if (user == null)
+            {
+                Console.WriteLine("[AUTH MIDDLEWARE] User not found");
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentType = "application/json";
+
+                await context.Response.WriteAsync("""
+                {
+                  "message": "Unauthorized request. User not found."
+                }
+                """);
+
+                return;
+            }
+
+            // 7. Set user in HttpContext
+            context.Items["User"] = user;
+
+            Console.WriteLine("[AUTH MIDDLEWARE] Authorization successful");
+
             await next(context);
         }
         catch (Exception ex)
         {
-            // Log and return 401 for token related and authorization errors
-            Console.WriteLine($"Authorization error: {ex.Message}");
+            Console.WriteLine($"[AUTH MIDDLEWARE] Authorization error: {ex.Message}");
+
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            await context.Response.WriteAsync("Unauthorized");
+            context.Response.ContentType = "application/json";
+
+            await context.Response.WriteAsync("""
+            {
+              "message": "Unauthorized request."
+            }
+            """);
+
             return;
         }
+    }
+
+    private static bool IsPublicPath(string path)
+    {
+        return path.StartsWith("/api/v1/authentication/sign-in") ||
+               path.StartsWith("/api/v1/authentication/sign-up") ||
+               path.StartsWith("/swagger") ||
+               path.StartsWith("/v3/api-docs") ||
+               path.StartsWith("/favicon.ico") ||
+               path == "/";
     }
 }
