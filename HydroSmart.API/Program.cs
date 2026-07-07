@@ -162,9 +162,17 @@ else if (builder.Environment.IsProduction())
 
 // Add CORS Policy (configurable)
 var allowedOriginsConfig = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
+
+// Debug logging for CORS configuration
+var corsOrigins = allowedOriginsConfig?.ToList() ?? new List<string>();
+Console.WriteLine($"[CORS] Environment: {builder.Environment.EnvironmentName}");
+Console.WriteLine($"[CORS] Configured Origins: {string.Join(", ", corsOrigins)}");
+
 var allowedOrigins = allowedOriginsConfig != null && allowedOriginsConfig.Length > 0 && allowedOriginsConfig[0].Contains("%")
     ? Environment.ExpandEnvironmentVariables(allowedOriginsConfig[0]).Split(',', StringSplitOptions.RemoveEmptyEntries)
     : allowedOriginsConfig;
+
+Console.WriteLine($"[CORS] Final Allowed Origins: {string.Join(", ", allowedOrigins ?? Array.Empty<string>())}");
 
 builder.Services.AddCors(options =>
 {
@@ -173,7 +181,10 @@ builder.Services.AddCors(options =>
         if (builder.Environment.IsDevelopment())
         {
             // Development: allow all origins to simplify local testing
-            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+            Console.WriteLine("[CORS] Development mode: allowing all origins");
         }
         else if (allowedOrigins != null && allowedOrigins.Length > 0)
         {
@@ -181,12 +192,16 @@ builder.Services.AddCors(options =>
             policy.WithOrigins(allowedOrigins)
                   .AllowAnyMethod()
                   .AllowAnyHeader()
-                  .AllowCredentials();
+                  .WithExposedHeaders("Authorization");
+            Console.WriteLine($"[CORS] Production mode: allowing specific origins");
         }
         else
         {
             // Fallback: allow all (if no origins configured)
-            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+            Console.WriteLine("[CORS] Fallback: allowing all origins");
         }
     });
 });
