@@ -9,7 +9,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace HydroSmart.API.Devices.Interfaces.REST;
 
 [ApiController]
-[Route("devices")]
+[Route("api/v1/devices")]
 [Produces(MediaTypeNames.Application.Json)]
 [SwaggerTag("Available Device Endpoints.")]
 public class DevicesController(
