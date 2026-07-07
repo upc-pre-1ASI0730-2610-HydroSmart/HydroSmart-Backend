@@ -12,7 +12,7 @@ public static class ModelBuilderExtensions
         builder.Entity<Profile>().HasKey(p => p.Id);
         builder.Entity<Profile>().Property(p => p.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Entity<Profile>().Property(p => p.UserId).IsRequired();
-        builder.Entity<Profile>().Property(p => p.PhotoUrl).HasMaxLength(500);
+        builder.Entity<Profile>().Property(p => p.PhotoUrl).HasColumnType("longtext");
         builder.Entity<Profile>().Property(p => p.FirstName).IsRequired().HasMaxLength(200);
         builder.Entity<Profile>().Property(p => p.LastName).IsRequired().HasMaxLength(100);
         builder.Entity<Profile>().Property(p => p.Address).HasMaxLength(500);

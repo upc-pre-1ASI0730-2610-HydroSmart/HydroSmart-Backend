@@ -28,6 +28,7 @@ using HydroSmart.API.Devices.Application.Internal.QueryServices;
 using HydroSmart.API.Devices.Domain.Repositories;
 using HydroSmart.API.Devices.Domain.Services;
 using HydroSmart.API.Devices.Infrastructure.Persistence.EFC.Repositories;
+using HydroSmart.API.Profiles.Infrastructure.Persistence.EFC.Configuration.Extensions;
 using HydroSmart.API.Reports.Infrastructure.Persistence.EFC.Configuration.Extensions;
 using HydroSmart.API.Settings.Application.Internal.CommandServices;
 using HydroSmart.API.Settings.Application.Internal.QueryServices;
@@ -390,6 +391,7 @@ if (app.Environment.IsDevelopment())
         var services = scope.ServiceProvider;
         var context = services.GetRequiredService<AppDbContext>();
         context.Database.EnsureCreated();
+        await context.EnsureProfilePhotoSchemaAsync();
         await context.EnsureReportsSchemaAsync();
     }
 }
