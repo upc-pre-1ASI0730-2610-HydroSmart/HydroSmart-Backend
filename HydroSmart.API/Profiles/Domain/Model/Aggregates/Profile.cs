@@ -2,7 +2,7 @@
 
 public partial class Profile
 {
-    public int Id { get; }
+    public int Id { get; private set; }
     public int UserId { get; private set; }
     public string PhotoUrl { get; private set; }
     public string FirstName { get; private set; }

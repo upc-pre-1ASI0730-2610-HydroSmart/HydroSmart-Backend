@@ -2,7 +2,7 @@ namespace HydroSmart.API.Devices.Domain.Model.Aggregates;
 
 public class Device
 {
-    public int Id { get; }
+    public int Id { get; private set; }
     public string Name { get; private set; }
     public string Section { get; private set; }
     public string Status { get; private set; }

@@ -31,8 +31,8 @@ public class ProfileCommandService : IProfileCommandService
             command.PhotoUrl,
             command.FirstName,
             command.LastName,
-            command.Email,
             command.Address,
+            command.Email,
             command.PhoneNumber
         );
 
@@ -64,8 +64,8 @@ public class ProfileCommandService : IProfileCommandService
             command.PhotoUrl,
             command.FirstName,
             command.LastName,
-            command.Email,
             command.Address,
+            command.Email,
             command.PhoneNumber
         );
 
