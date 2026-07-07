@@ -26,7 +26,7 @@ public static class ModelBuilderExtensions
         // Seed admin user for testing
         var adminPasswordHash = BCryptNet.HashPassword("admin123");
         builder.Entity<User>().HasData(
-            new User("admin@gmail.com", adminPasswordHash, "Admin")
+            new { Id = 1, Email = "admin@gmail.com", PasswordHash = adminPasswordHash, Role = "Admin" }
         );
     }
 }
