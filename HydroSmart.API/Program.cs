@@ -358,6 +358,26 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+// Ensure CORS headers are present even when unhandled exceptions occur
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception)
+    {
+        var origin = context.Request.Headers["Origin"].ToString();
+        if (!string.IsNullOrWhiteSpace(origin) && Array.Exists(allowedOrigins, o => o == origin))
+        {
+            context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+            context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
+            context.Response.Headers["Vary"] = "Origin";
+        }
+        throw;
+    }
+});
+
 // CORS must be before Authentication, Authorization and custom middleware
 app.UseCors("DefaultCorsPolicy");
 
