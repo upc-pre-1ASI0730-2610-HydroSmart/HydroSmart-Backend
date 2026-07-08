@@ -93,7 +93,8 @@ if (allowedOrigins == null || allowedOrigins.Length == 0)
     allowedOrigins = new[]
     {
         "http://localhost:5173",
-        "https://hydrosmartweb.netlify.app"
+        "https://hydrosmartweb.netlify.app",
+        "https://deploy-preview-12--hydrosmartweb.netlify.app"
     };
 }
 
